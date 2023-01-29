@@ -1,0 +1,196 @@
+---
+title: "PALMER PENGUINS 2007-2009"
+author: Daiana Lavecchia
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+---
+
+```{r setup, include=FALSE}
+#Importing libraries
+library(flexdashboard)
+library(ggplot2)
+library(ggthemes)
+library(ggrepel)
+library(tidyr)
+library(dplyr)
+library(ggthemes)
+library(maps)
+library(highcharter)
+```
+
+```{r}
+#Importing data and removing NA
+
+pinguinos <- datos::pinguinos
+pinguinos <- drop_na(pinguinos)
+
+antarctica <- map_data("world", region = "Antarctica")
+
+df_penguinloc <- tibble(isla = c("Dream", "Biscoe", "Torgersen"),
+    lat_y = c(-64.7333, -65.4333, -64.7666636),
+    long_x = c(-64.2333, -65.5000, -64.083333))
+
+```
+
+
+Hello!
+===================================================================================================
+![](https://allisonhorst.github.io/palmerpenguins/reference/figures/lter_penguins.png){width="500px"}
+
+Dashboard
+===================================================================================================
+
+Column {data-width=200}
+-----------------------------------------------------------------------
+![](https://allisonhorst.github.io/palmerpenguins/reference/figures/culmen_depth.png){width="250px"}
+
+### Total individuos
+```{r}
+total=length(pinguinos$especie)
+valueBox(total, caption="Total individuos", icon= "fa-tag", color="primary")
+```
+
+### Total hembras
+
+```{r}
+hembras=length(pinguinos$sexo[pinguinos$sexo == "hembra"])
+valueBox(hembras, caption="Total hembras", icon= "fa-tag", color="warning")
+```
+
+### Total machos
+
+```{r}
+machos=length(pinguinos$sexo[pinguinos$sexo == "macho"])
+valueBox(machos, caption= "Total machos", icon= "fa-tag", color="warning")
+```
+
+### Masa corporal media
+
+```{r}
+masa=trunc(mean(pinguinos$masa_corporal_g))
+valueBox(masa, caption="Masa corporal media (gr.)", icon= "fa-tag", color="primary")
+```
+
+Column {.tabset data-width=400}
+-----------------------------------------------------------------------
+
+### Ubicación
+```{r}
+#Antactica maps
+    
+p <- ggplot(antarctica, aes(long, lat, group = group)) +
+  geom_polygon(fill = "grey", alpha = .8) +
+  coord_map("ortho", orientation = c(-90, 0, 0),
+            xlim = c(-62, -55),
+            ylim = c(-75, - 60)) +
+  geom_text_repel(df_penguinloc, mapping=aes(long_x, lat_y, label = isla), 
+                  group=1, color = c("cyan4", "magenta3", "darkorange"), 
+                  box.padding = 0.5,
+                  nudge_y = 1,  nudge_x = -2, min.segment.length = 0) +
+  geom_point(df_penguinloc, mapping=aes(long_x, lat_y,  
+                                        group = 1, 
+                                        colour = isla), 
+             alpha =.7)+
+  scale_color_manual(values = c("magenta3", "cyan4", "darkorange"))+
+  labs(title = "Archipielago de Palmer - Antartida",
+       subtitle = "Torgersen - Dream - Biscoe") +
+  theme_map() +
+  theme(legend.position = "none",
+        plot.title = element_text(hjust = 0.5, size = 20),
+        plot.subtitle =  element_text(hjust = 0.5),
+        plot.background = element_rect(fill="#f9f9f9", color = "#f9f9f9"))
+p
+
+```
+
+### Conteo por isla
+```{r}
+#Cantidad de pinguinos por isla
+
+pinguinos %>% 
+  ggplot(aes(x = isla, fill=isla)) + 
+  geom_bar()+
+  scale_fill_manual(values = c("Torgersen" = "darkorange", "Dream" = "cyan4", "Biscoe" = "magenta3")) +
+  coord_flip() +
+  labs(title = "Pingüinos adultos en busca de alimento", 
+       x= "Isla Antártica", 
+       y = "Cantidad de pingüinos")+
+  theme_minimal() +
+  theme(legend.position = "none",
+        plot.title = element_text(hjust = 0.5, size = 20),
+          plot.subtitle =  element_text(hjust = 0.5))
+
+```
+
+
+Column {.tabset data-width=400}
+-----------------------------------------------------------------------
+### 1.Dimensiones
+
+```{r}
+#Pico de los pinguinos por especie
+
+pinguinos %>% 
+  ggplot(aes(x = largo_pico_mm, y = alto_pico_mm, color=especie)) +
+  geom_smooth(method = "lm", se = FALSE, aes(color = especie)) +
+  scale_color_manual(values = c("magenta3", "cyan4", "darkorange")) +
+  geom_point() +
+  coord_fixed(ratio = 3/1) +
+  labs(title = "Dimensiones del pico",
+                                  x = "Largo del pico (mm)",
+                                  y = "Alto del pico (mm)",
+                                  color = "Especie",
+                                  shape = "Especie") +
+  theme_minimal() + 
+  theme(legend.position = c(0.85, 0.15),
+        plot.title = element_text(hjust = 0.5, size = 20),
+          plot.subtitle =  element_text(hjust = 0.5),
+        legend.background = element_rect(fill = "white", color = NA))
+```
+
+### 2.Dimensiones
+```{r}
+
+#Largo aleta y masa
+
+pinguinos %>% 
+  ggplot(aes(x = masa_corporal_g, y = largo_aleta_mm, color=especie)) +
+  scale_color_manual(values = c("magenta3", "cyan4", "darkorange")) +
+  geom_point() +
+  labs(title = "Dimensiones aleta vs. masa corporal",
+       x = "Masa corporal (g)",
+       y = "Alto de la aleta (mm)",
+       color = "Especie",
+       shape = "Especie") +
+  theme_minimal() + 
+  theme(legend.position = c(0.85, 0.15),
+        plot.title = element_text(hjust = 0.5, size = 20),
+          plot.subtitle =  element_text(hjust = 0.5),
+        legend.background = element_rect(fill = "white", color = NA))
+```
+
+About
+==========================================================================================
+Column{data-width=400}
+--------------------------------------------------------------------------------
+![Tres especies de pinguinos en ek dataset](C:/Users/temp/Downloads/Rstudio/Palmer-Penguins/img_1.jpg){width="450px"}
+
+![Barbijo, Papua y Adelia pinguinos](C:/Users/temp/Downloads/Rstudio/Palmer-Penguins/img_2.jpg){width="400px"}
+
+column{data-width=400}
+------------------------------------------------------------------------------
+<p style = 'font-size: 25px; text-align: justify'>Estos datos fueron recolectados entre 2007 y 2009 por la Dra. Kristen Gorman con el Programa de Investigación Ecológica de la Estación Palmer.</p>
+
+<p style = 'font-size: 20px;'>Para ver más imágenes click [aquí](https://docs.google.com/presentation/d/1DFJLXYRJ2kWw6AFkJu7MclFPr8zkqD-PHh5bs4xcr3Y/edit#slide=id.g8caec87945_0_34)</p>
+<p style = 'font-size: 20px;'>Para ver más ilustraciones click [aquí](https://allisonhorst.github.io/palmerpenguins/articles/art.html)</p>
+
+<p style = 'font-size: 25px; text-align: justify'>Este dataset es muy divertido para aprender a procesar datos y para conocer un poco acerca de los pinguinos de la Antartida. En este caso lo elegí para aprender a crear dashboards utilizando R Markdown y este fue el resultado.</p>
+<p style = 'font-size: 20px;'>Para más información acerca de este dataset click [aquí](https://education.rstudio.com/blog/2020/07/palmerpenguins-cran/)</p>
+<p style = 'font-size: 20px;'>Para más información sobre mí click [aquí](https://www.linkedin.com/in/daianalavecchia/)</p>
+
+<p style = 'font-size: 25px; text-align: right'>Daiana Lavecchia</p>
+
+Column{data-width=200}
+------------------------------------------------------------------------------
