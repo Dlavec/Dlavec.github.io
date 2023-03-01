@@ -1,7 +1,13 @@
-# Palmer-Penguins
+<div id="header" align="center">
+  <img src="https://github.com/Dlavec/Dlavec.github.io/blob/main/palmer_penguins.jpg" width="900"/>
+  <h1 align="center">Hola, que bueno verte aquí!
+  <img src="https://media.giphy.com/media/hvRJCLFzcasrR4ia7z/giphy.gif" width="30px"/>
+  </h1>
+</div>
+
+### Palmer-Penguins
 👩‍💻Apreniendo a crear Dashboards interactivos con RMarkdown en RStudio utilizando flexdashboard
 
-Usando diferentes paquetes logré incluir: 
-✔️ gráficos, mapas e imágenes 
-✔️ links de información del dataset utilizado de los pinguinos de Palmer🐧
+https://dlavec.github.io/Pinguinos.html
 
+Uso de diferentes paquetes para generar gráficos, mapas e imágenes
